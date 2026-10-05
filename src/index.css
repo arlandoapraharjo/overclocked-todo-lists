@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Geist Mono', monospace;
+  --color-zinc-850: #18181b;
+  --color-zinc-925: #0e0e11;
+}
+
+@layer base {
+  :root {
+    --bg-page: #f8fafc;
+    --card-bg: #ffffff;
+    --card-border: rgba(0, 0, 0, 0.08);
+    --text-primary: #09090b;
+    --text-secondary: #71717a;
+    --input-bg: #f4f4f5;
+  }
+
+  .dark {
+    --bg-page: #09090b;
+    --card-bg: #141416;
+    --card-border: rgba(255, 255, 255, 0.08);
+    --text-primary: #f4f4f5;
+    --text-secondary: #a1a1aa;
+    --input-bg: #18181b;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    /* High-performance hardware-composited background texture instead of live blur filters */
+    background-image: 
+      radial-gradient(at 50% 0%, rgba(56, 189, 248, 0.05) 0px, transparent 60%),
+      radial-gradient(at 100% 50%, rgba(129, 140, 248, 0.04) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+}
+
+/* Custom minimal scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(160, 160, 160, 0.2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(160, 160, 160, 0.4);
+}
+
+/* Touch none for drag handles */
+.touch-none {
+  touch-action: none;
+}

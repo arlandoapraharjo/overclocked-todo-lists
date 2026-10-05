@@ -1,0 +1,53 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Diagnostic / TypeScript build info
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Production Build outputs
+dist/
+dist-ssr/
+build/
+*.local
+
+# Environment variables & Sensitive API keys
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+*.env
+*.env.*
+!.env.example
+
+# Editor / IDE configurations
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# Agent / Tooling configs
+.agents/
+.gemini/
+mcp_config.json
