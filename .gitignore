@@ -52,3 +52,4 @@ Thumbs.db
 .agents/
 .gemini/
 mcp_config.json
+mcp_client_*.py
