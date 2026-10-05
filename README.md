@@ -88,7 +88,7 @@ Designed with client-side zero-trust security and defense-in-depth:
 
 ### Prerequisites
 
-- Node.js 18.0.0 or higher
+- **Node.js 20.0.0 or higher** (required by Tailwind CSS v4 and its native engine)
 - npm, pnpm, or yarn
 
 ### 1. Clone & Install

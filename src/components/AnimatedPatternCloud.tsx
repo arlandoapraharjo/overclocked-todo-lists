@@ -42,7 +42,11 @@ export const AnimatedPatternCloud: React.FC<AnimatedPatternCloudProps> = React.m
       `;
 
       const fsSource = `
+        #ifdef GL_FRAGMENT_PRECISION_HIGH
         precision highp float;
+        #else
+        precision mediump float;
+        #endif
         uniform float u_time;
         uniform vec2 u_resolution;
         uniform float u_is_dark;
