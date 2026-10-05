@@ -1,4 +1,4 @@
-# ⚡ Overclocked To-Do List — High-Performance Minimalist Bento Task Engine
+# Overclocked To-Do List — High-Performance Minimalist Bento Task Engine
 
 [![React Version](https://img.shields.io/badge/React-19-blue?logo=react&logoColor=white)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
