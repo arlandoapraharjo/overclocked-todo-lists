@@ -16,7 +16,7 @@ export default function App() {
     try {
       const stored = localStorage.getItem('focusflow_theme');
       if (stored) return stored === 'dark';
-    } catch (_) {}
+    } catch (_) { }
     return true; // default to dark minimalist
   });
 
@@ -24,7 +24,7 @@ export default function App() {
     try {
       const stored = localStorage.getItem('focusflow_view_mode');
       if (stored === 'grid' || stored === 'list') return stored;
-    } catch (_) {}
+    } catch (_) { }
     return 'list';
   });
 
@@ -124,7 +124,7 @@ export default function App() {
         />
 
         {/* Task Input (Single Task + AI Brain Dump Ingestion) */}
-        <TaskInput 
+        <TaskInput
           onAdd={addTodo}
           onAddBatch={addBatchTodos}
           onOpenAISettings={handleOpenAISettings}
@@ -181,11 +181,11 @@ export default function App() {
                       {searchQuery
                         ? 'No tasks found matching your search'
                         : filterStatus === 'completed'
-                        ? 'No completed tasks yet'
-                        : 'All caught up! No active tasks'}
+                          ? 'No completed tasks yet'
+                          : 'All caught up! No active tasks'}
                     </p>
                     <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
-                      {searchQuery ? 'Try clearing your search query' : 'Create a new task or use AI Brain Dump'}
+                      {searchQuery ? 'Try clearing your search query' : 'Create a new task or use Brain Dump'}
                     </p>
                   </div>
 
