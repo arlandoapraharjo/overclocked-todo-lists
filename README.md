@@ -91,6 +91,37 @@ Designed with client-side zero-trust security and defense-in-depth:
 - **Node.js 20.0.0 or higher** (required by Tailwind CSS v4 and its native engine)
 - npm, pnpm, or yarn
 
+<details>
+<summary><strong>Installing or Updating Node.js (Click to expand)</strong></summary>
+
+Verify your current version:
+```bash
+node -v   # Must output v20.0.0 or higher
+```
+
+If you need to install or upgrade Node.js:
+- **Official Installer (All Platforms)**: Download the latest LTS from [nodejs.org](https://nodejs.org/).
+- **Windows (`winget`)**:
+  ```powershell
+  winget install OpenJS.NodeJS.LTS
+  ```
+- **macOS (`brew`)**:
+  ```bash
+  brew install node@22
+  ```
+- **Linux (Ubuntu/Debian via NodeSource)**:
+  ```bash
+  curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+  sudo apt install -y nodejs
+  ```
+- **Using a Version Manager (`nvm` / `fnm`)**:
+  ```bash
+  nvm install 22 && nvm use 22
+  # or: fnm install 22 && fnm use 22
+  ```
+
+</details>
+
 ### 1. Clone & Install
 
 ```bash
@@ -101,6 +132,9 @@ cd overclocked-todo-lists
 # Install dependencies
 npm install
 ```
+
+> [!NOTE]
+> The installation automatically runs a postinstall watchdog (`scripts/ensure-platform-bindings.cjs`) that detects your operating system and architecture (Windows x64/ARM, macOS Apple Silicon/Intel, Linux x64/ARM) and guarantees all platform-specific native compiler binaries (`@tailwindcss/oxide` and `lightningcss`) are present.
 
 ### 2. Configure Environment (Optional)
 
@@ -120,14 +154,6 @@ npm run dev
 ```
 
 Visit `http://localhost:5173` in your browser.
-
-> [!TIP]
-> **Troubleshooting Native Bindings (`@tailwindcss/oxide`)**:
-> If npm encounters bug [npm/cli#4828](https://github.com/npm/cli/issues/4828) skipping native binary bindings on fresh clones, force-install your platform binary:
-> - **Windows**: `npm install @tailwindcss/oxide-win32-x64-msvc --save-dev --force`
-> - **macOS**: `npm install @tailwindcss/oxide-darwin-arm64 --save-dev --force` (or `darwin-x64`)
-> - **Linux**: `npm install @tailwindcss/oxide-linux-x64-gnu --save-dev --force`
-> Or simply perform a clean reinstall: `rm -rf node_modules package-lock.json && npm install`.
 
 ### 4. Build for Production
 
