@@ -116,9 +116,18 @@ cp .env.example .env.local
 
 ```bash
 npm run dev
+# or: npm start
 ```
 
 Visit `http://localhost:5173` in your browser.
+
+> [!TIP]
+> **Troubleshooting Native Bindings (`@tailwindcss/oxide`)**:
+> If npm encounters bug [npm/cli#4828](https://github.com/npm/cli/issues/4828) skipping native binary bindings on fresh clones, force-install your platform binary:
+> - **Windows**: `npm install @tailwindcss/oxide-win32-x64-msvc --save-dev --force`
+> - **macOS**: `npm install @tailwindcss/oxide-darwin-arm64 --save-dev --force` (or `darwin-x64`)
+> - **Linux**: `npm install @tailwindcss/oxide-linux-x64-gnu --save-dev --force`
+> Or simply perform a clean reinstall: `rm -rf node_modules package-lock.json && npm install`.
 
 ### 4. Build for Production
 
