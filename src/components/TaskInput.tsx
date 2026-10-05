@@ -10,7 +10,8 @@ import {
   Settings2, 
   Loader2, 
   CheckCircle2,
-  SlidersHorizontal
+  SlidersHorizontal,
+  AlertCircle
 } from 'lucide-react';
 import type { Priority, Category } from '../types/todo';
 import { parseTasksFromText, type ParsedTask } from '../services/aiParser';
@@ -65,6 +66,7 @@ export const TaskInput = React.memo(function TaskInput({
   const [brainDumpText, setBrainDumpText] = useState('');
   const [isParsing, setIsParsing] = useState(false);
   const [extractedTasks, setExtractedTasks] = useState<ParsedTask[] | null>(null);
+  const [parseError, setParseError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -81,10 +83,12 @@ export const TaskInput = React.memo(function TaskInput({
 
   const handleSingleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!title.trim()) return;
+    // Sanitize title against script injection and cap length
+    const cleanTitle = title.replace(/<[^>]*>/g, '').trim().slice(0, 150);
+    if (!cleanTitle) return;
 
-    const time = customTime.trim() || selectedTime;
-    onAdd(title.trim(), time, selectedPriority, selectedCategory);
+    const time = (customTime.replace(/<[^>]*>/g, '').trim() || selectedTime).slice(0, 20);
+    onAdd(cleanTitle, time, selectedPriority, selectedCategory);
     setTitle('');
     setCustomTime('');
   };
@@ -95,6 +99,7 @@ export const TaskInput = React.memo(function TaskInput({
 
     setIsParsing(true);
     setExtractedTasks(null);
+    setParseError(null);
 
     try {
       const results = await parseTasksFromText(brainDumpText);
@@ -110,9 +115,11 @@ export const TaskInput = React.memo(function TaskInput({
           setExtractedTasks(null);
           setOpen(false);
         }, 1200);
+      } else {
+        setParseError('No discrete tasks detected in the input. Please provide more descriptive text.');
       }
-    } catch (err) {
-      console.error('Extraction error', err);
+    } catch {
+      setParseError('Failed to extract tasks. Please verify your settings or network connection.');
     } finally {
       setIsParsing(false);
     }
@@ -242,7 +249,8 @@ export const TaskInput = React.memo(function TaskInput({
                   <input
                     ref={inputRef}
                     type="text"
-                    placeholder="What needs to be done?"
+                    maxLength={150}
+                    placeholder="What needs to be done? (max 150 chars)"
                     value={title}
                     onChange={e => setTitle(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -348,9 +356,13 @@ export const TaskInput = React.memo(function TaskInput({
                   <textarea
                     ref={textareaRef}
                     rows={4}
+                    maxLength={4000}
                     placeholder="Paste a long paragraph, messy notes, or meeting minutes... e.g. 'We urgently need to fix the auth API bug (1h), prepare slides for client by tomorrow (2h), and call dentist to reschedule appointment (15m)'"
                     value={brainDumpText}
-                    onChange={e => setBrainDumpText(e.target.value)}
+                    onChange={e => {
+                      setBrainDumpText(e.target.value);
+                      if (parseError) setParseError(null);
+                    }}
                     onKeyDown={e => {
                       if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                         handleAISubmit();
@@ -360,14 +372,26 @@ export const TaskInput = React.memo(function TaskInput({
                   />
                   <div className="flex items-center justify-between text-[11px] text-zinc-400 px-0.5">
                     <span>Press Ctrl+Enter or Cmd+Enter to extract</span>
-                    <span>{brainDumpText.split(/\s+/).filter(Boolean).length} words</span>
+                    <span className={cn(
+                      brainDumpText.length > 3800 ? "text-amber-500 font-medium" : "text-zinc-400"
+                    )}>
+                      {brainDumpText.length}/4000 chars ({brainDumpText.split(/\s+/).filter(Boolean).length} words)
+                    </span>
                   </div>
                 </div>
+
+                {/* Error Indicator */}
+                {parseError && (
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{parseError}</span>
+                  </div>
+                )}
 
                 {/* Status Indicator */}
                 {extractedTasks && (
                   <div className="flex items-center gap-2 p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs">
-                    <CheckCircle2 className="w-4 h-4" />
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
                     <span>Successfully extracted {extractedTasks.length} tasks and auto-sorted by urgency!</span>
                   </div>
                 )}
