@@ -8,7 +8,8 @@ import { TodoItem } from './components/TodoItem';
 import { WidgetGrid } from './components/WidgetGrid';
 import { CommandPalette } from './components/CommandPalette';
 import { AISettingsModal } from './components/AISettingsModal';
-import { Inbox, Plus, RotateCcw, LayoutGrid, List } from 'lucide-react';
+import { AnimatedPatternCloud } from './components/AnimatedPatternCloud';
+import { Inbox, Plus, RotateCcw, LayoutGrid, List, Github } from 'lucide-react';
 import type { Category } from './types/todo';
 
 export default function App() {
@@ -55,9 +56,10 @@ export default function App() {
     resetToSample,
   } = useTodos();
 
-  // Apply dark class to document root
+  // Apply dark class to document root with smooth fade transition
   useEffect(() => {
     const root = document.documentElement;
+    root.classList.add('theme-transition');
     if (isDark) {
       root.classList.add('dark');
       localStorage.setItem('focusflow_theme', 'dark');
@@ -65,6 +67,10 @@ export default function App() {
       root.classList.remove('dark');
       localStorage.setItem('focusflow_theme', 'light');
     }
+    const timer = setTimeout(() => {
+      root.classList.remove('theme-transition');
+    }, 380);
+    return () => clearTimeout(timer);
   }, [isDark]);
 
   // Persist view mode
@@ -110,6 +116,9 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen selection:bg-zinc-800 selection:text-zinc-100 flex flex-col justify-between">
+      {/* 21st.dev Animated Pattern Cloud Background */}
+      <AnimatedPatternCloud isDark={isDark} />
+
       {/* Main Container - Expands nicely in Grid Mode */}
       <main className={`w-full ${viewMode === 'grid' ? 'max-w-3xl' : 'max-w-xl'} mx-auto px-4 py-8 sm:py-12 flex-1 space-y-6 transition-[max-width] duration-200`}>
         {/* Header & Stats with View Mode & AI triggers */}
@@ -266,12 +275,28 @@ export default function App() {
       </main>
 
       {/* Sleek Minimalist Footer */}
-      <footer className="w-full text-center py-6 text-[11px] text-zinc-400 dark:text-zinc-600 border-t border-zinc-100 dark:border-zinc-900/60">
-        <p className="flex items-center justify-center gap-1.5">
-          <span>Crafted with</span>
-          <span className="font-semibold text-zinc-700 dark:text-zinc-300">21st.dev</span>
-          <span>minimalist design aesthetics</span>
-        </p>
+      <footer className="w-full text-center py-6 border-t border-zinc-200/60 dark:border-zinc-800/60">
+        <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 dark:bg-zinc-900/80 border border-zinc-200/80 dark:border-zinc-800/80 shadow-xs backdrop-blur-md text-[11px] text-zinc-500 dark:text-zinc-400 transition-colors">
+          <span>by</span>
+          <a
+            href="https://github.com/arlandoapraharjo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-zinc-900 dark:text-zinc-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors underline underline-offset-4 decoration-zinc-300 dark:decoration-zinc-700"
+          >
+            arlandoapraharjo
+          </a>
+          <span className="text-zinc-300 dark:text-zinc-700">•</span>
+          <a
+            href="https://github.com/arlandoapraharjo/overclocked-todo-lists"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors"
+          >
+            <Github className="w-3.5 h-3.5" />
+            <span>view repo</span>
+          </a>
+        </div>
       </footer>
 
       {/* Command Palette Modal */}

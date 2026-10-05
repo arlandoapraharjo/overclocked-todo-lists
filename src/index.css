@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'Geist Mono', monospace;
@@ -28,14 +30,9 @@
 
   body {
     font-family: var(--font-sans);
-    background-color: var(--bg-page);
+    background-color: transparent;
     color: var(--text-primary);
     overflow-x: hidden;
-    /* High-performance hardware-composited background texture instead of live blur filters */
-    background-image: 
-      radial-gradient(at 50% 0%, rgba(56, 189, 248, 0.05) 0px, transparent 60%),
-      radial-gradient(at 100% 50%, rgba(129, 140, 248, 0.04) 0px, transparent 50%);
-    background-attachment: fixed;
   }
 }
 
@@ -59,3 +56,18 @@
 .touch-none {
   touch-action: none;
 }
+
+/* Smooth global fade transition when toggling theme */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition: background-color 350ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 350ms cubic-bezier(0.4, 0, 0.2, 1),
+              color 250ms cubic-bezier(0.4, 0, 0.2, 1),
+              fill 250ms cubic-bezier(0.4, 0, 0.2, 1),
+              stroke 250ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 350ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-delay: 0s !important;
+}
+

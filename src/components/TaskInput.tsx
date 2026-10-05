@@ -174,7 +174,7 @@ export const TaskInput = React.memo(function TaskInput({
               title="Parse paragraphs or meeting notes with AI"
             >
               <Brain className="w-4 h-4 text-blue-500" />
-              <span className="hidden sm:inline">AI Import</span>
+              <span className="hidden sm:inline">Brain Dump</span>
             </button>
           </div>
         ) : (

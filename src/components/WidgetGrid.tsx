@@ -1,17 +1,16 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { motion, useMotionValue, animate, useDragControls, type PanInfo } from 'motion/react';
-import { 
-  GripVertical, 
-  Check, 
-  Trash2, 
-  Clock, 
-  Plus, 
-  Flame, 
-  Briefcase, 
-  Palette, 
-  User, 
+import { motion } from 'motion/react';
+import {
+  GripVertical,
+  Check,
+  Trash2,
+  Clock,
+  Plus,
+  Flame,
+  Briefcase,
+  Palette,
+  User,
   Folder,
-  Layers,
   RotateCcw,
   Maximize2,
   Grid
@@ -65,34 +64,26 @@ const PRIORITY_DOTS: Record<Priority, string> = {
   low: 'bg-emerald-500 shadow-emerald-500/50',
 };
 
-// Single 2D Free-Draggable Widget Card that Snaps to Grid Slots on Release
+// Bento Category Widget Card
 function BentoCategoryWidget({
   category,
-  index,
   tasks,
   onToggle,
   onDelete,
   onAddQuick,
-  constraintsRef,
-  onDropToSlot,
+  onHeaderPointerDown,
+  isDragging = false,
 }: {
   category: Category;
-  index: number;
   tasks: Todo[];
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onAddQuick: (title: string, category: Category) => void;
-  constraintsRef: React.RefObject<HTMLDivElement | null>;
-  onDropToSlot: (fromIndex: number, offset: { x: number; y: number }) => void;
+  onHeaderPointerDown?: (e: React.PointerEvent) => void;
+  isDragging?: boolean;
 }) {
-  const dragControls = useDragControls();
   const [quickInput, setQuickInput] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-
-  // Motion values for smooth X/Y 2D tracking and spring snap
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
 
   const meta = CATEGORY_META[category] || CATEGORY_META.General;
   const Icon = meta.icon;
@@ -113,45 +104,22 @@ function BentoCategoryWidget({
     }
   };
 
-  const handleDragEnd = (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    setIsDragging(false);
-    // Notify parent to swap or reorder slots based on drop position
-    onDropToSlot(index, info.offset);
-
-    // Magnetic spring snap back to center (relative 0,0 of target slot)
-    animate(x, 0, { type: 'spring', damping: 28, stiffness: 400 });
-    animate(y, 0, { type: 'spring', damping: 28, stiffness: 400 });
-  };
-
   const completedCount = tasks.filter(t => t.completed).length;
 
   return (
-    <motion.div
-      layout="position"
-      style={{ x, y }}
-      drag
-      dragConstraints={constraintsRef}
-      dragElastic={0.06}
-      dragMomentum={false}
-      dragListener={false}
-      dragControls={dragControls}
-      onDragStart={() => setIsDragging(true)}
-      onDragEnd={handleDragEnd}
-      whileDrag={{
-        scale: 1.03,
-        zIndex: 50,
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.2)',
-      }}
+    <div
       className={cn(
         "rounded-2xl border bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 p-4 space-y-3.5 shadow-xs select-none flex flex-col justify-between transition-colors",
-        isDragging ? "ring-2 ring-blue-500/50 cursor-grabbing" : "hover:border-zinc-300 dark:hover:border-zinc-700"
+        isDragging
+          ? "ring-2 ring-blue-500/50 shadow-2xl cursor-grabbing scale-[1.02]"
+          : "hover:border-zinc-300 dark:hover:border-zinc-700"
       )}
     >
-      {/* Widget Header - Free 2D drag handle */}
-      <div 
-        onPointerDown={(e) => dragControls.start(e)}
+      {/* Widget Header - Drag handle */}
+      <div
+        onPointerDown={onHeaderPointerDown}
         className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800/80 pb-3 cursor-grab active:cursor-grabbing touch-none select-none"
-        title="Drag widget in 2D to snap into another slot"
+        title="Drag widget to re-tile grid"
       >
         <div className="flex items-center gap-2.5 pointer-events-none">
           <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center shrink-0", meta.color)}>
@@ -179,10 +147,10 @@ function BentoCategoryWidget({
           </button>
 
           {/* Grip Icon */}
-          <div 
-            onPointerDown={(e) => dragControls.start(e)}
+          <div
+            onPointerDown={onHeaderPointerDown}
             className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 p-1 cursor-grab active:cursor-grabbing rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors touch-none"
-            title="Drag &amp; snap to grid"
+            title="Drag to reorder grid"
           >
             <GripVertical className="w-4 h-4" />
           </div>
@@ -203,7 +171,7 @@ function BentoCategoryWidget({
           <button
             type="submit"
             disabled={!quickInput.trim()}
-            className="px-2 py-1 text-xs bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 rounded-lg font-medium cursor-pointer disabled:opacity-40"
+            className="px-2 py-1 text-xs bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 rounded-lg font-medium cursor-pointer disabled:opacity-40 hover:opacity-90"
           >
             Add
           </button>
@@ -257,7 +225,7 @@ function BentoCategoryWidget({
                     {task.estimatedTime}
                   </span>
                 )}
-                <div 
+                <div
                   className={cn("w-1.5 h-1.5 rounded-full", PRIORITY_DOTS[task.priority])}
                   title={`Priority: ${task.priority}`}
                 />
@@ -274,7 +242,7 @@ function BentoCategoryWidget({
           ))
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -285,49 +253,163 @@ export const WidgetGrid = React.memo(function WidgetGrid({
   onAddQuick,
 }: WidgetGridProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const slotRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const gridRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<Map<Category, HTMLDivElement>>(new Map());
 
   // Default and active categories
   const DEFAULT_CATEGORIES: Category[] = ['Work', 'Design', 'Personal', 'Urgent', 'General'];
-  
+
   const [categories, setCategories] = useState<Category[]>(() => {
     const used = Array.from(new Set(todos.map(t => t.category))) as Category[];
     return Array.from(new Set([...used, ...DEFAULT_CATEGORIES])) as Category[];
   });
 
-  // Calculate closest grid slot and swap positions
-  const handleDropToSlot = useCallback((fromIndex: number, offset: { x: number; y: number }) => {
-    const fromEl = slotRefs.current.get(fromIndex);
-    if (!fromEl) return;
+  // Dragging & Snapping State
+  const [dragState, setDragState] = useState<{
+    category: Category;
+    dimensions: { width: number; height: number };
+    grabOffset: { x: number; y: number };
+    pointer: { x: number; y: number };
+    targetIndex: number;
+    isDropping?: boolean;
+    dropTargetPos?: { x: number; y: number };
+  } | null>(null);
 
-    const fromRect = fromEl.getBoundingClientRect();
-    const draggedCenterX = fromRect.left + fromRect.width / 2 + offset.x;
-    const draggedCenterY = fromRect.top + fromRect.height / 2 + offset.y;
+  const categoriesRef = useRef(categories);
+  categoriesRef.current = categories;
 
-    let closestIndex = fromIndex;
-    let minDistanceSq = Infinity;
+  const lastSwapTime = useRef<number>(0);
 
-    // Check all slot anchor positions
-    slotRefs.current.forEach((el, idx) => {
-      const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const distSq = (draggedCenterX - cx) ** 2 + (draggedCenterY - cy) ** 2;
-      if (distSq < minDistanceSq) {
-        minDistanceSq = distSq;
-        closestIndex = idx;
-      }
-    });
+  // Live Dynamic Hover Reorder with Preserved Shared-Container FLIP Animation
+  const handleStartDrag = useCallback((e: React.PointerEvent, cat: Category, fromIndex: number) => {
+    if ((e.target as HTMLElement).closest('button, input, form')) return;
+    e.preventDefault();
 
-    // If dragged to a different slot, swap them in state!
-    if (closestIndex !== fromIndex) {
-      setCategories(prev => {
-        const next = [...prev];
-        const [movedItem] = next.splice(fromIndex, 1);
-        next.splice(closestIndex, 0, movedItem);
-        return next;
-      });
+    const cardEl = cardRefs.current.get(cat);
+    if (!cardEl) return;
+
+    const rect = cardEl.getBoundingClientRect();
+    const grabOffset = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+    const dimensions = {
+      width: rect.width,
+      height: rect.height,
+    };
+
+    // Calculate static row & column boundaries before any cards move
+    const currentCats = categoriesRef.current;
+    const cols = window.innerWidth >= 768 ? 2 : 1;
+    const numRows = Math.ceil(currentCats.length / cols);
+
+    const rowBoundaries: { top: number; bottom: number }[] = [];
+    for (let r = 0; r < numRows; r++) {
+      const idx1 = r * cols;
+      const idx2 = Math.min(currentCats.length - 1, r * cols + (cols - 1));
+      const el1 = cardRefs.current.get(currentCats[idx1]);
+      const el2 = cardRefs.current.get(currentCats[idx2]);
+      const r1 = el1?.getBoundingClientRect();
+      const r2 = el2?.getBoundingClientRect();
+
+      const top = Math.min(r1?.top ?? rect.top, r2?.top ?? rect.top);
+      const bottom = Math.max(r1?.bottom ?? rect.bottom, r2?.bottom ?? rect.bottom);
+      rowBoundaries.push({ top, bottom });
     }
+
+    const gridRect = gridRef.current?.getBoundingClientRect() || rect;
+    const colMidX = gridRect.left + gridRect.width / 2;
+
+    let hasStarted = false;
+    const startX = e.clientX;
+    const startY = e.clientY;
+
+    const onPointerMove = (moveEvt: PointerEvent) => {
+      const dx = moveEvt.clientX - startX;
+      const dy = moveEvt.clientY - startY;
+
+      // Start drag after 4px threshold
+      if (!hasStarted && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+        hasStarted = true;
+        setDragState({
+          category: cat,
+          dimensions,
+          grabOffset,
+          pointer: { x: moveEvt.clientX, y: moveEvt.clientY },
+          targetIndex: fromIndex,
+        });
+      }
+
+      if (hasStarted) {
+        setDragState(prev => prev ? {
+          ...prev,
+          pointer: { x: moveEvt.clientX, y: moveEvt.clientY },
+        } : null);
+
+        // Calculate target slot geometrically with 90ms debounce
+        const now = Date.now();
+        if (now - lastSwapTime.current > 90) {
+          // Column index
+          const targetCol = (cols === 2 && moveEvt.clientX >= colMidX) ? 1 : 0;
+
+          // Row index: find closest row center
+          let bestRow = 0;
+          let minRowDist = Infinity;
+          rowBoundaries.forEach((rb, r) => {
+            const rowCenterY = (rb.top + rb.bottom) / 2;
+            const dist = Math.abs(moveEvt.clientY - rowCenterY);
+            if (dist < minRowDist) {
+              minRowDist = dist;
+              bestRow = r;
+            }
+          });
+
+          const targetIdx = Math.min(categoriesRef.current.length - 1, Math.max(0, bestRow * cols + targetCol));
+          const currentCatIdx = categoriesRef.current.indexOf(cat);
+
+          if (currentCatIdx !== -1 && currentCatIdx !== targetIdx) {
+            setCategories(prev => {
+              const curIdx = prev.indexOf(cat);
+              if (curIdx === -1 || curIdx === targetIdx) return prev;
+              const next = [...prev];
+              const [moved] = next.splice(curIdx, 1);
+              next.splice(targetIdx, 0, moved);
+              return next;
+            });
+            setDragState(prev => prev ? { ...prev, targetIndex: targetIdx } : null);
+            lastSwapTime.current = Date.now();
+          }
+        }
+      }
+    };
+
+    const onPointerUp = () => {
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+
+      if (hasStarted) {
+        // Find current card element's target bounding rect for tactile drop snap
+        const currentCatEl = cardRefs.current.get(cat);
+        if (currentCatEl) {
+          const targetRect = currentCatEl.getBoundingClientRect();
+          setDragState(prev => prev ? {
+            ...prev,
+            isDropping: true,
+            dropTargetPos: { x: targetRect.left, y: targetRect.top },
+          } : null);
+
+          // Clear floating overlay after spring snap finishes
+          setTimeout(() => {
+            setDragState(null);
+          }, 160);
+        } else {
+          setDragState(null);
+        }
+      }
+    };
+
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
   }, []);
 
   const handleResetGrid = () => {
@@ -338,17 +420,17 @@ export const WidgetGrid = React.memo(function WidgetGrid({
   return (
     <div className="space-y-3">
       {/* Canvas Header & Snap Mode Indicator */}
-      <div className="flex items-center justify-between text-xs px-1">
+      <div className="flex items-center justify-between text-xs px-1 select-none">
         <div className="flex items-center gap-2">
           <div className="p-1 rounded-md bg-blue-500/10 text-blue-500">
             <Grid className="w-3.5 h-3.5" />
           </div>
           <div>
             <span className="font-semibold text-zinc-800 dark:text-zinc-200">
-              Grid Bento Dashboard
+              Bento Grid
             </span>
             <span className="hidden sm:inline text-zinc-400 dark:text-zinc-500 text-[11px] ml-1.5">
-              (2D Free Drag with Magnetic Slot Snapping)
+              (Drag & Snap)
             </span>
           </div>
         </div>
@@ -366,7 +448,7 @@ export const WidgetGrid = React.memo(function WidgetGrid({
 
       {/* 
         BOUNDED CANVAS CONTAINER BOX:
-        Confines widgets inside containerRef so they NEVER escape or glitch off-screen.
+        Direct-children FLIP animation layout with spring physics.
       */}
       <div
         ref={containerRef}
@@ -381,34 +463,118 @@ export const WidgetGrid = React.memo(function WidgetGrid({
         {/* Subtle Watermark Tag */}
         <div className="absolute top-3 right-4 pointer-events-none flex items-center gap-1 text-[10px] font-mono uppercase tracking-wider text-zinc-400/50 dark:text-zinc-600/60 select-none">
           <Maximize2 className="w-2.5 h-2.5" />
-          <span>Magnetic Snap Canvas</span>
+          <span>Widgets</span>
         </div>
 
-        {/* 2-Column Responsive Bento Grid Slots */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative w-full h-full">
-          {categories.map((cat, index) => (
-            <div
-              key={cat}
-              ref={el => {
-                if (el) slotRefs.current.set(index, el);
-                else slotRefs.current.delete(index);
-              }}
-              className="relative w-full"
-            >
-              <BentoCategoryWidget
-                category={cat}
-                index={index}
-                tasks={todos.filter(t => t.category === cat)}
-                onToggle={onToggle}
-                onDelete={onDelete}
-                onAddQuick={onAddQuick}
-                constraintsRef={containerRef}
-                onDropToSlot={handleDropToSlot}
-              />
-            </div>
-          ))}
+        {/* 
+          2-Column Responsive Bento Grid:
+          Every card is a DIRECT sibling inside the grid with layout={true},
+          ensuring Framer Motion animates their movement smoothly across slots!
+        */}
+        <div
+          ref={gridRef}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4 relative w-full h-full"
+        >
+          {categories.map((cat, index) => {
+            const isPlaceholder = dragState?.category === cat;
+            const meta = CATEGORY_META[cat] || CATEGORY_META.General;
+            const Icon = meta.icon;
+
+            return (
+              <motion.div
+                key={cat}
+                layout
+                transition={{
+                  type: 'spring',
+                  damping: 26,
+                  stiffness: 320,
+                  mass: 0.8,
+                }}
+                ref={el => {
+                  if (el) cardRefs.current.set(cat, el);
+                  else cardRefs.current.delete(cat);
+                }}
+                className="relative w-full"
+              >
+                {isPlaceholder ? (
+                  // Height-matched placeholder slot that slides along with the layout!
+                  <div
+                    style={{
+                      height: dragState?.dimensions.height || 220,
+                    }}
+                    className="w-full rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-700/80 bg-zinc-100/40 dark:bg-zinc-800/20 p-5 flex flex-col items-center justify-center space-y-2 select-none opacity-60 transition-colors"
+                  >
+                    <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center", meta.color)}>
+                      <Icon className="w-4 h-4 opacity-70" />
+                    </div>
+                    <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+                      {meta.label}
+                    </span>
+                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">
+                      Slot {index + 1}
+                    </span>
+                  </div>
+                ) : (
+                  // Static Widget Card
+                  <BentoCategoryWidget
+                    category={cat}
+                    tasks={todos.filter(t => t.category === cat)}
+                    onToggle={onToggle}
+                    onDelete={onDelete}
+                    onAddQuick={onAddQuick}
+                    onHeaderPointerDown={e => handleStartDrag(e, cat, index)}
+                  />
+                )}
+              </motion.div>
+            );
+          })}
         </div>
       </div>
+
+      {/* 
+        FLOATING DRAGGED CARD WITH SPRING DROP SNAP
+        Renders smoothly under the pointer, and springs right into the target slot on release.
+      */}
+      {dragState && (
+        <motion.div
+          style={{
+            position: 'fixed',
+            width: dragState.dimensions.width,
+            zIndex: 9999,
+            pointerEvents: 'none',
+          }}
+          animate={
+            dragState.isDropping && dragState.dropTargetPos
+              ? {
+                left: dragState.dropTargetPos.x,
+                top: dragState.dropTargetPos.y,
+                scale: 1,
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+              }
+              : {
+                left: dragState.pointer.x - dragState.grabOffset.x,
+                top: dragState.pointer.y - dragState.grabOffset.y,
+                scale: 1.03,
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+              }
+          }
+          transition={
+            dragState.isDropping
+              ? { type: 'spring', damping: 26, stiffness: 420 }
+              : { duration: 0 }
+          }
+          className="rounded-2xl ring-2 ring-blue-500/50"
+        >
+          <BentoCategoryWidget
+            category={dragState.category}
+            tasks={todos.filter(t => t.category === dragState.category)}
+            onToggle={() => { }}
+            onDelete={() => { }}
+            onAddQuick={() => { }}
+            isDragging
+          />
+        </motion.div>
+      )}
     </div>
   );
 });
