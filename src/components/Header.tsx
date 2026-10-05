@@ -1,13 +1,13 @@
 import React from 'react';
-import { 
-  SunMedium, 
-  Sun, 
-  MoonStar, 
-  Command, 
-  LayoutGrid, 
-  List, 
-  Sparkles, 
-  CheckCircle2 
+import {
+  SunMedium,
+  Sun,
+  MoonStar,
+  Command,
+  LayoutGrid,
+  List,
+  Sparkles,
+  CheckCircle2
 } from 'lucide-react';
 import type { TodoStats } from '../types/todo';
 import { cn } from '../lib/utils';
@@ -103,7 +103,7 @@ export const Header = React.memo(function Header({
             type="button"
             onClick={onOpenAISettings}
             className="flex items-center gap-1 px-2 py-1 text-xs rounded-lg text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/60 transition-colors shadow-xs cursor-pointer"
-            title="AI Brain Dump & API Key Settings"
+            title="Brain Dump & API Key Settings"
           >
             <Sparkles className="w-3.5 h-3.5 text-blue-500" />
             <span className="hidden sm:inline text-[11px] font-medium">AI Keys</span>

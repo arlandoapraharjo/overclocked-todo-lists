@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Plus, 
-  Clock, 
-  X, 
-  CornerDownLeft, 
-  Sparkles, 
-  Brain, 
-  Settings2, 
-  Loader2, 
+import {
+  Plus,
+  Clock,
+  X,
+  CornerDownLeft,
+  Sparkles,
+  Brain,
+  Settings2,
+  Loader2,
   CheckCircle2,
   SlidersHorizontal,
   AlertCircle
@@ -42,7 +42,7 @@ export const TaskInput = React.memo(function TaskInput({
 }: TaskInputProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
-  
+
   const setOpen = (open: boolean) => {
     if (onOpenChange) {
       onOpenChange(open);
@@ -217,7 +217,7 @@ export const TaskInput = React.memo(function TaskInput({
                   )}
                 >
                   <Brain className="w-3 h-3 text-blue-500" />
-                  <span>AI Brain Dump</span>
+                  <span>Brain Dump</span>
                 </button>
               </div>
 
